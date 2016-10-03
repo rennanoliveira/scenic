@@ -9,6 +9,9 @@ module Scenic
         end
 
         # All of the views that this connection has defined.
+        # Mysql will return these views ordered by name.
+        # Difference from the original Postgres adapter:
+        #   Mysql2 gem only watches one schema at a time.
         #
         # This will not include materialized views as these are not
         # supported by mysql.
@@ -31,14 +34,13 @@ module Scenic
         end
 
         def to_scenic_view(result)
-          namespace, viewname = result.values_at 'TABLE_SCHEMA', 'TABLE_NAME'
-
           Scenic::View.new(
-            name: "#{namespace}.#{viewname}",
+            name: result['TABLE_NAME'],
             definition: result['VIEW_DEFINITION'].strip,
-            materialized: false,
+            materialized: false
           )
         end
+
       end
     end
   end
